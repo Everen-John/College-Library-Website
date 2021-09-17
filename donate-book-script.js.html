@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: donate-book-script.js</title>
+    
+    
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,700" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/main.css">
+
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html"></a></h3>
+    <button id="menuToggle" class="btn btn-link btn-lg menu-toggle">
+        <span class="glyphicon glyphicon-menu-hamburger"></span>
+    </button>
+    <div class="search">
+        <input id="search" type="text" class="form-control input-md" placeholder="Search...">
+    </div>
+    <ul class="list">
+    
+    
+        <li class="item" data-name="global">
+            <span class="title namespace ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-globe"></span>
+                </span>
+                
+                
+                    <a href="global.html">Global</a>
+                
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="addBooktoLocalStorage"><a href="global.html#addBooktoLocalStorage">addBooktoLocalStorage</a></li>
+            
+                <li class="parent  " data-name="addDonatedBooksToLocalStorage"><a href="global.html#addDonatedBooksToLocalStorage">addDonatedBooksToLocalStorage</a></li>
+            
+                <li class="parent  " data-name="deletefunction"><a href="global.html#deletefunction">deletefunction</a></li>
+            
+                <li class="parent  " data-name="donateFormSubmit"><a href="global.html#donateFormSubmit">donateFormSubmit</a></li>
+            
+                <li class="parent  " data-name="editfunction"><a href="global.html#editfunction">editfunction</a></li>
+            
+                <li class="parent  " data-name="libraryFormSubmit"><a href="global.html#libraryFormSubmit">libraryFormSubmit</a></li>
+            
+                <li class="parent  " data-name="loadBooks"><a href="global.html#loadBooks">loadBooks</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+    </ul>
+</div>
+
+    <div class="main">
+        <h1 class="page-title" data-filename="donate-book-script.js.html">Source: donate-book-script.js</h1>
+        
+
+
+    
+    <section>
+        <header>
+            <div class="header content-size">
+                <h2>donate-book-script.js</h2>
+            </div>
+        </header>
+        <article>
+            <pre id="source-code" class="prettyprint source "><code>// Constructor for donated books
+function Book(
+  title,
+  author,
+  publisher,
+  yearPublished,
+  category,
+  description,
+  donationMethod
+) {
+  this.title = title;
+  this.author = author;
+  this.publisher = publisher;
+  this.yearPublished = yearPublished;
+  this.category = category;
+  this.description = description;
+  this.donationMethod = donationMethod;
+}
+
+// Constructor for donors
+function Donor(
+  firstName,
+  lastName,
+  email,
+  contact,
+  address,
+  address2,
+  city,
+  state,
+  zip
+) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+  this.email = email;
+  this.contact = contact;
+  this.address = address;
+  this.address2 = address2;
+  this.city = city;
+  this.state = state;
+  this.zip = zip;
+}
+
+// We'll create a donatedBooks array to store all donated books entry into our localStorage, and retrieve them when necessary
+var donatedBooks = [];
+
+// Add a new book to the donatedBooks array in the localStorage
+var numberOfDonatedBooks = 0;
+
+/**
+ * Add Donated Books to Local Storage
+ * @param {object} donor
+ * @param {object} book
+ * @returns {1} value to show process completed
+ */
+function addDonatedBooksToLocalStorage(donor, book) {
+  console.log("Adding book to donatedBooks array in localStorage");
+
+  let donation = { ...donor, ...book };
+
+  if (localStorage.getItem("donatedBooks") == null) {
+    donatedBooks.push(donation);
+    localStorage.setItem("donatedBooks", JSON.stringify(donatedBooks));
+  } else {
+    donatedBooks = JSON.parse(localStorage.getItem("donatedBooks"));
+    donatedBooks.push(donation);
+    localStorage.setItem("donatedBooks", JSON.stringify(donatedBooks));
+    numberOfDonatedBooks = donatedBooks.length;
+  }
+
+  numberOfDonatedBooks = numberOfDonatedBooks + 1;
+
+  return 1;
+}
+
+// Clears the donateForm inputs after successfully adding the data
+function clearDonateForm() {
+  let donateForm = document.getElementById("donateForm");
+  donateForm.reset();
+}
+
+// Add submit event listener to donateForm
+let donateForm = document.getElementById("donateForm");
+
+if (donateForm != null) {
+  donateForm.addEventListener("submit", donateFormSubmit);
+}
+
+module.exports = { addDonatedBooksToLocalStorage };
+
+/**
+ * Receives the information entered by the users and performs appropriate form validation to ensure that all the input fields are valid prior to submitting the form.
+ * If no issues are detected from the form validation process, the new book will be added and the current form data will be cleared.
+ * @param {object} e
+ */
+function donateFormSubmit(e) {
+  console.log("You have submitted donate form");
+
+  // Retrieve information regarding the donors
+  let firstName = document.getElementById("inputFirstName").value;
+  let lastName = document.getElementById("inputLastName").value;
+  let email = document.getElementById("inputEmail").value;
+  let contact = document.getElementById("inputContact").value;
+  let address = document.getElementById("inputAddress").value;
+  let address2 = document.getElementById("inputAddress2").value;
+  let city = document.getElementById("inputCity").value;
+  let state = document.getElementById("inputState").value;
+  let zip = document.getElementById("inputZip").value;
+
+  let donor = new Donor(
+    firstName,
+    lastName,
+    email,
+    contact,
+    address,
+    address2,
+    city,
+    state,
+    zip
+  );
+
+  console.log(donor);
+
+  // // Retrieve information regarding the donated books
+  let title = document.getElementById("inputTitle").value;
+  let author = document.getElementById("inputAuthor").value;
+  let publisher = document.getElementById("inputPublisher").value;
+  let yearPublished = document.getElementById("inputYearPublished").value;
+  let category = document.getElementById("inputCategory").value;
+  let description = document.getElementById("inputDescription").value;
+  let donationMethod = "";
+
+  if (document.getElementById("dropOff").checked) {
+    donationMethod = document.getElementById("dropOff").value;
+  }
+
+  if (document.getElementById("pickUp").checked) {
+    donationMethod = document.getElementById("pickUp").value;
+  }
+
+  let book = new Book(
+    title,
+    author,
+    publisher,
+    yearPublished,
+    category,
+    description,
+    donationMethod
+  );
+
+  if (
+    title &amp;&amp;
+    author &amp;&amp;
+    publisher &amp;&amp;
+    yearPublished &amp;&amp;
+    category &amp;&amp;
+    description &amp;&amp;
+    donationMethod
+  ) {
+    addDonatedBooksToLocalStorage(donor, book);
+    clearDonateForm();
+    console.log(localStorage.getItem("donatedBooks"));
+  } else {
+    // Show error to the user
+    console.log(localStorage.getItem("donatedBooks"));
+  }
+
+  e.preventDefault();
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer class="content-size">
+            <div class="footer">
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Sep 17 2021 06:39:20 GMT+0000 (Coordinated Universal Time)
+            </div>
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/main.js"></script>
+
+
+</body>
+</html>

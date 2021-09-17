@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: script.js</title>
+    
+    
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,700" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/main.css">
+
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html"></a></h3>
+    <button id="menuToggle" class="btn btn-link btn-lg menu-toggle">
+        <span class="glyphicon glyphicon-menu-hamburger"></span>
+    </button>
+    <div class="search">
+        <input id="search" type="text" class="form-control input-md" placeholder="Search...">
+    </div>
+    <ul class="list">
+    
+    
+        <li class="item" data-name="global">
+            <span class="title namespace ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-globe"></span>
+                </span>
+                
+                
+                    <a href="global.html">Global</a>
+                
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="addBooktoLocalStorage"><a href="global.html#addBooktoLocalStorage">addBooktoLocalStorage</a></li>
+            
+                <li class="parent  " data-name="addDonatedBooksToLocalStorage"><a href="global.html#addDonatedBooksToLocalStorage">addDonatedBooksToLocalStorage</a></li>
+            
+                <li class="parent  " data-name="deletefunction"><a href="global.html#deletefunction">deletefunction</a></li>
+            
+                <li class="parent  " data-name="donateFormSubmit"><a href="global.html#donateFormSubmit">donateFormSubmit</a></li>
+            
+                <li class="parent  " data-name="editfunction"><a href="global.html#editfunction">editfunction</a></li>
+            
+                <li class="parent  " data-name="libraryFormSubmit"><a href="global.html#libraryFormSubmit">libraryFormSubmit</a></li>
+            
+                <li class="parent  " data-name="loadBooks"><a href="global.html#loadBooks">loadBooks</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+    </ul>
+</div>
+
+    <div class="main">
+        <h1 class="page-title" data-filename="script.js.html">Source: script.js</h1>
+        
+
+
+    
+    <section>
+        <header>
+            <div class="header content-size">
+                <h2>script.js</h2>
+            </div>
+        </header>
+        <article>
+            <pre id="source-code" class="prettyprint source "><code>// Constructor
+function Book(name, author, type) {
+	this.name = name
+	this.author = author
+	this.type = type
+}
+
+// typrwiter text
+var TxtType = function (el, toRotate, period) {
+	this.toRotate = toRotate
+	this.el = el
+	this.loopNum = 0
+	this.period = parseInt(period, 10) || 2000
+	this.txt = ""
+	this.tick()
+	this.isDeleting = false
+}
+
+TxtType.prototype.tick = function () {
+	var i = this.loopNum % this.toRotate.length
+	var fullTxt = this.toRotate[i]
+
+	if (this.isDeleting) {
+		this.txt = fullTxt.substring(0, this.txt.length - 1)
+	} else {
+		this.txt = fullTxt.substring(0, this.txt.length + 1)
+	}
+
+	this.el.innerHTML = '&lt;span class="wrap">' + this.txt + "&lt;/span>"
+
+	var that = this
+	var delta = 200 - Math.random() * 100
+
+	if (this.isDeleting) {
+		delta /= 2
+	}
+
+	if (!this.isDeleting &amp;&amp; this.txt === fullTxt) {
+		delta = this.period
+		this.isDeleting = true
+	} else if (this.isDeleting &amp;&amp; this.txt === "") {
+		this.isDeleting = false
+		this.loopNum++
+		delta = 500
+	}
+
+	setTimeout(function () {
+		that.tick()
+	}, delta)
+}
+
+//Onload Function
+window.onload = function () {
+	var elements = document.getElementsByClassName("typewrite")
+	for (var i = 0; i &lt; elements.length; i++) {
+		var toRotate = elements[i].getAttribute("data-type")
+		var period = elements[i].getAttribute("data-period")
+		if (toRotate) {
+			new TxtType(elements[i], JSON.parse(toRotate), period)
+		}
+	}
+
+	// INJECT CSS
+	var css = document.createElement("style")
+	css.type = "text/css"
+	css.innerHTML = ".typewrite > .wrap { border-right: 0.08em solid #fff}"
+	document.body.appendChild(css)
+
+	document.getElementById("loading").style.display = "none"
+	document.getElementById("body").style.display = "block"
+
+	// Add submit event listener to libraryForm
+	let libraryForm = document.getElementById("libraryForm")
+	libraryForm.addEventListener("submit", libraryFormSubmit)
+}
+//Load all books from LocalStorage, put outside because the window.onload function is broken
+loadBooks()
+
+// Display Constructor
+function Display() {}
+
+// Add methods to display prototype
+let countBooks = 0
+Display.prototype.add = function (book) {
+	console.log("Adding to UI")
+	tableBody = document.getElementById("tableBody")
+	countBooks = countBooks + 1
+	let uiString = `&lt;tr id="${countBooks}">
+                        &lt;td>${book.name}&lt;/td>
+                        &lt;td>${book.author}&lt;/td>
+                        &lt;td>${book.type}&lt;/td>
+                        &lt;td>&lt;button class="btn btn-success" id="edit" onclick="editfunction('${book.name}','${book.author}','${book.type}','${countBooks}')">Edit&lt;/button>
+                        &lt;/td?
+                        &lt;td>&lt;button class="btn btn-danger" id="edit" onclick="deletefunction('${countBooks}')">Delete&lt;/button>
+                        &lt;/td>
+                    &lt;/tr>`
+	tableBody.innerHTML += uiString
+}
+
+// Implement the clear function
+Display.prototype.clear = function () {
+	let libraryForm = document.getElementById("libraryForm")
+	libraryForm.reset()
+}
+
+Display.prototype.validate = function (book) {
+	if (book.name.length &lt; 2 || book.author.length &lt; 2) {
+		return false
+	} else {
+		return true
+	}
+}
+Display.prototype.show = function (type, displayMessage) {
+	let message = document.getElementById("message")
+	message.innerHTML = `&lt;div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                            &lt;strong>Messge:&lt;/strong> ${displayMessage}
+                            &lt;button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            &lt;span aria-hidden="true">×&lt;/span>
+                            &lt;/button>
+                        &lt;/div>`
+	setTimeout(function () {
+		message.innerHTML = ""
+	}, 2000)
+}
+
+/**
+ * submit library form into localStorage, and also perform validation.
+ * @param {object} e
+ *
+ */
+function libraryFormSubmit(e) {
+	console.log("YOu have submitted library form")
+	let name = document.getElementById("bookName").value
+	let author = document.getElementById("author").value
+	let type = document.getElementById("type").value
+
+	let book = new Book(name, author, type)
+	console.log(book)
+
+	let display = new Display()
+
+	if (display.validate(book)) {
+		display.add(book)
+		display.clear()
+		display.show("success", "Your book has been successfully added")
+		addBooktoLocalStorage(book)
+	} else {
+		// Show error to the user
+		display.show("danger", "Sorry you cannot add this book")
+	}
+
+	e.preventDefault()
+}
+
+/**
+ * Adds books to the local storage.
+ * @param {object} book
+ * @returns {1} confirms the process is completed.
+ */
+function addBooktoLocalStorage(book) {
+	let addedBook = book
+	let allbooks
+
+	let booksAddition = new Promise((resolve, reject) => {
+		allbooks = JSON.parse(window.localStorage.getItem("books"))
+		console.log("allbooks right now:" + JSON.stringify(allbooks))
+		allbooks = allbooks ? [...allbooks, addedBook] : [addedBook]
+		window.localStorage.setItem("books", JSON.stringify(allbooks))
+		resolve(allbooks)
+	})
+
+	booksAddition.then((allbooks) => {
+		console.log(JSON.stringify(window.localStorage.getItem("books")))
+	})
+
+	return 1
+}
+
+/**
+ * Loads all the books from local storage into the page.
+ * Returns 1 as confirmation of completed process
+ * @returns {1}
+ */
+function loadBooks() {
+	let allbooks = JSON.parse(window.localStorage.getItem("books"))
+	tableBody = document.getElementById("tableBody")
+	let countBooks = 0
+	let uiString
+
+	if (allbooks) {
+		allbooks.map((book) => {
+			countBooks++
+			uiString += `&lt;tr id="${countBooks}">
+    &lt;td>${book.name}&lt;/td>
+    &lt;td>${book.author}&lt;/td>
+    &lt;td>${book.type}&lt;/td>
+    &lt;td>&lt;button class="btn btn-success" id="edit" onclick="editfunction('${book.name}','${book.author}','${book.type}','${countBooks}')">Edit&lt;/button>
+    &lt;/td?
+    &lt;td>&lt;button class="btn btn-danger" id="edit" onclick="deletefunction('${countBooks}')">Delete&lt;/button>
+    &lt;/td>
+&lt;/tr>`
+		})
+		tableBody.innerHTML += uiString
+	} else {
+	}
+	return 1
+}
+module.exports = { addBooktoLocalStorage, loadBooks }
+
+/**
+ * Edits the Book Name, author, type, and book ID.
+ * @param {*} pbookname
+ * @param {*} pauthorname
+ * @param {*} ptype
+ * @param {*} pbookid
+ */
+function editfunction(pbookname, pauthorname, ptype, pbookid) {
+	document.getElementById("bookName").value = pbookname
+	document.getElementById("author").value = pauthorname
+	document.getElementById(ptype).checked = true
+	document.getElementById(pbookid).style.display = "none"
+}
+
+/**
+ * Deletes the book based on its book id.
+ * @param {object} pbookid
+ */
+function deletefunction(pbookid) {
+	document.getElementById(pbookid).style.display = "none"
+}
+
+// window.onload = function () {
+//   document.getElementById("loading").style.display = "none";
+//   document.getElementById("body").style.display = "block";
+
+// };
+// Todos"
+// 1. Give another column as an option to delete the book
+// 2. Add a scroll bar to the view.
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer class="content-size">
+            <div class="footer">
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Sep 17 2021 06:39:20 GMT+0000 (Coordinated Universal Time)
+            </div>
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/main.js"></script>
+
+
+</body>
+</html>
